@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Research Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid #2a2a4a;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #7eb3ff;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .search-box {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid #2a2a4a;
+            margin-bottom: 2rem;
+        }
+
+        .search-box h2 {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.85rem 1.2rem;
+            border-radius: 10px;
+            border: 1px solid #2a2a4a;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #7eb3ff;
+        }
+
+        button {
+            padding: 0.85rem 1.8rem;
+            background: #7eb3ff;
+            color: #0f0f1a;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #5a9aff; }
+        button:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+        .status-box {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 3px solid #2a2a4a;
+            border-top-color: #7eb3ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .status-text { color: #7eb3ff; font-size: 0.95rem; }
+
+        .results { display: none; }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #7eb3ff;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #2a2a4a;
+        }
+
+        .paper-card {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 1.3rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .paper-card:hover { border-color: #7eb3ff44; }
+
+        .paper-number {
+            display: inline-block;
+            background: #7eb3ff22;
+            color: #7eb3ff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            margin-bottom: 0.6rem;
+        }
+
+        .paper-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 0.4rem;
+            line-height: 1.4;
+        }
+
+        .paper-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.8rem;
+        }
+
+        .paper-meta a { color: #7eb3ff88; text-decoration: none; }
+        .paper-meta a:hover { color: #7eb3ff; }
+
+        .paper-summary {
+            font-size: 0.9rem;
+            color: #bbb;
+            line-height: 1.6;
+            background: #0f0f1a;
+            padding: 0.9rem;
+            border-radius: 8px;
+            border-left: 3px solid #7eb3ff44;
+        }
+
+        .analysis-box {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .analysis-content {
+            font-size: 0.92rem;
+            color: #ccc;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.9rem 2rem;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #7eb3ff;
+            border: 1px solid #7eb3ff44;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: fit-content;
+        }
+
+        .download-btn:hover {
+            background: #7eb3ff;
+            color: #0f0f1a;
+            border-color: #7eb3ff;
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .example-chip {
+            background: #0f0f1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 20px;
+            padding: 0.35rem 0.9rem;
+            font-size: 0.82rem;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-chip:hover {
+            border-color: #7eb3ff;
+            color: #7eb3ff;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🔬 AI Research Agent</h1>
+    <p>Search ArXiv · Summarize Papers · Identify Research Gaps · Export PDF</p>
+</header>
+
+<div class="container">
+
+    <div class="search-box">
+        <h2>Enter a research topic</h2>
+        <div class="input-row">
+            <input type="text" id="topicInput"
+                   placeholder="e.g. diffusion models medical imaging" />
+            <button id="searchBtn" onclick="startResearch()">Research</button>
+        </div>
+        <div class="examples">
+            <span class="example-chip" onclick="setTopic('transformer models NLP')">transformer models NLP</span>
+            <span class="example-chip" onclick="setTopic('reinforcement learning robotics')">reinforcement learning robotics</span>
+            <span class="example-chip" onclick="setTopic('graph neural networks')">graph neural networks</span>
+            <span class="example-chip" onclick="setTopic('object detection autonomous vehicles')">object detection autonomous vehicles</span>
+        </div>
+    </div>
+
+    <div class="status-box" id="statusBox">
+        <div class="spinner"></div>
+        <div class="status-text" id="statusText">Starting...</div>
+    </div>
+
+    <div class="results" id="results">
+        <div class="section-title">📄 Papers Found</div>
+        <div id="papersList"></div>
+
+        <div class="analysis-box">
+            <div class="section-title">🧠 Research Analysis</div>
+            <div class="analysis-content" id="analysisContent"></div>
+        </div>
+
+        <button class="download-btn" id="downloadBtn">
+            ⬇️ Download PDF Report
+        </button>
+    </div>
+
+</div>
+
+<script>
+    let currentJobId = null;
+    let pollInterval = null;
+
+    function setTopic(topic) {
+        document.getElementById('topicInput').value = topic;
+    }
+
+    async function startResearch() {
+        const topic = document.getElementById('topicInput').value.trim();
+        if (!topic) return;
+
+        // Reset UI
+        document.getElementById('searchBtn').disabled = true;
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('statusBox').style.display = 'flex';
+        document.getElementById('statusText').textContent = 'Starting...';
+        document.getElementById('papersList').innerHTML = '';
+        document.getElementById('analysisContent').textContent = '';
+
+        // Start job
+        const res = await fetch('/research', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic })
+        });
+        const data = await res.json();
+        currentJobId = data.job_id;
+
+        // Poll for updates
+        pollInterval = setInterval(pollStatus, 2000);
+    }
+
+    async function pollStatus() {
+        if (!currentJobId) return;
+
+        const res = await fetch(`/status/${currentJobId}`);
+        const job = await res.json();
+
+        document.getElementById('statusText').textContent = job.status;
+
+        if (job.status === 'done') {
+            clearInterval(pollInterval);
+            showResults(job);
+        } else if (job.status.startsWith('error')) {
+            clearInterval(pollInterval);
+            document.getElementById('statusText').textContent = '❌ ' + job.status;
+            document.getElementById('searchBtn').disabled = false;
+        }
+    }
+
+    function showResults(job) {
+        document.getElementById('statusBox').style.display = 'none';
+        document.getElementById('searchBtn').disabled = false;
+        document.getElementById('results').style.display = 'block';
+
+        // Render papers
+        const papersList = document.getElementById('papersList');
+        papersList.innerHTML = job.summaries.map((s, i) => `
+            <div class="paper-card">
+                <div class="paper-number">Paper ${i + 1}</div>
+                <div class="paper-title">${s.title}</div>
+                <div class="paper-meta">
+                    📅 ${s.published} &nbsp;|&nbsp;
+                    <a href="${s.url}" target="_blank">🔗 View on ArXiv</a>
+                </div>
+                <div class="paper-summary">${s.summary}</div>
+            </div>
+        `).join('');
+
+        // Render analysis
+        document.getElementById('analysisContent').textContent = job.analysis;
+
+        // Download button
+        document.getElementById('downloadBtn').onclick = () => {
+            window.location.href = `/download/${currentJobId}`;
+        };
+    }
+</script>
+
+</body>
+</html>

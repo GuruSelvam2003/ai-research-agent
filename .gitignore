@@ -1,0 +1,28 @@
+# Virtual environments
+venv/
+venv313/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Generated output files
+*_report.md
+*_report.txt
+*_react_report.txt
+*_research_brief.pdf
+*_report.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env

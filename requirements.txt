@@ -1,0 +1,4 @@
+arxiv
+flask
+langchain-ollama
+reportlab
